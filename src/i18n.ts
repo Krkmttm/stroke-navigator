@@ -26,9 +26,10 @@ export const ui = {
   adl: { ja: "退院時のADL見込み", en: "Expected ADL at discharge" },
   adlShort: { ja: "ADL見込み", en: "Expected ADL" },
   check: { ja: "支援を判定・生成する", en: "Check eligibility & generate" },
-  formHint: {
-    ja: "判定は規則表(JSON)による決定的処理です。LLMは説明文の生成のみに使用します。",
-    en: "Eligibility is decided by a deterministic JSON rule table; the LLM only drafts explanations.",
+  pleaseSelect: { ja: "選択してください", en: "Please select" },
+  formIncomplete: {
+    ja: "年齢を入力し、すべての項目を選択してください。",
+    en: "Enter an age and select every item.",
   },
   placeholder: {
     ja: "患者情報を入力し、「支援を判定・生成する」を押してください。",

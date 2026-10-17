@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 import FamilyHandout from "./components/FamilyHandout";
 import MswTimeline from "./components/MswTimeline";
-import PatientForm from "./components/PatientForm";
-import { personas } from "./data/personas";
+import PatientForm, {
+  emptyPatient,
+  toPatient,
+} from "./components/PatientForm";
 import { programs } from "./data/programs";
 import { findMatchingPrograms } from "./eligibility/engine";
 import { ui } from "./i18n";
 import { getProvider } from "./llm";
 import { ShareProvider, useShare } from "./share/ShareContext";
-import type { GeneratedProgram, Lang, Patient, Persona } from "./types";
+import type { GeneratedProgram, Lang, Patient } from "./types";
 
 type Tab = "msw" | "family";
 
 function AppScreen() {
   const [lang, setLang] = useState<Lang>("ja");
-  const [patient, setPatient] = useState<Patient>(personas[0].patient);
-  const [activePersona, setActivePersona] = useState<Persona | null>(
-    personas[0],
-  );
+  const [patient, setPatient] = useState(emptyPatient);
+  const [checkedPatient, setCheckedPatient] = useState<Patient | null>(null);
   const [generated, setGenerated] = useState<GeneratedProgram[] | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [tab, setTab] = useState<Tab>("msw");
@@ -28,21 +28,12 @@ function AppScreen() {
     if (tab === "family") markSeen();
   }, [tab, unread, markSeen]);
 
-  const handleFieldChange = (next: Patient) => {
-    setPatient(next);
-    setActivePersona(null);
-  };
-
-  const handlePersona = (persona: Persona) => {
-    setPatient(persona.patient);
-    setActivePersona(persona);
-    setGenerated(null);
-    setEdits({});
-  };
-
   const handleCheck = async () => {
-    const matched = findMatchingPrograms(patient, programs);
-    const result = await getProvider().generate(patient, matched);
+    const complete = toPatient(patient);
+    if (!complete) return;
+    const matched = findMatchingPrograms(complete, programs);
+    const result = await getProvider().generate(complete, matched);
+    setCheckedPatient(complete);
     setGenerated(result);
     setEdits({});
     setTab("msw");
@@ -52,12 +43,6 @@ function AppScreen() {
     setEdits((prev) => ({ ...prev, [key]: value }));
   };
 
-  const personaProfile = activePersona
-    ? lang === "ja"
-      ? activePersona.profileJa
-      : activePersona.profileEn
-    : undefined;
-
   return (
     <div className="app">
       <header className="header no-print">
@@ -66,19 +51,6 @@ function AppScreen() {
           <p className="tagline">{ui.tagline[lang]}</p>
         </div>
         <div className="header-controls">
-          {personas.map((persona) => (
-            <button
-              key={persona.id}
-              className={
-                activePersona?.id === persona.id
-                  ? "persona-button active"
-                  : "persona-button"
-              }
-              onClick={() => handlePersona(persona)}
-            >
-              {lang === "ja" ? persona.labelJa : persona.labelEn}
-            </button>
-          ))}
           <button
             className="lang-toggle"
             onClick={() => setLang(lang === "ja" ? "en" : "ja")}
@@ -92,13 +64,12 @@ function AppScreen() {
           <PatientForm
             patient={patient}
             lang={lang}
-            personaProfile={personaProfile}
-            onChange={handleFieldChange}
+            onChange={setPatient}
             onCheck={handleCheck}
           />
         </section>
         <section className="panel results-panel">
-          {generated === null ? (
+          {generated === null || checkedPatient === null ? (
             <p className="placeholder">{ui.placeholder[lang]}</p>
           ) : (
             <div className="results">
@@ -118,7 +89,11 @@ function AppScreen() {
                 </button>
               </div>
               {tab === "msw" ? (
-                <MswTimeline lang={lang} generated={generated} patient={patient} />
+                <MswTimeline
+                  lang={lang}
+                  generated={generated}
+                  patient={checkedPatient}
+                />
               ) : (
                 <FamilyHandout
                   lang={lang}

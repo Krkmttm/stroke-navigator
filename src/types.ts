@@ -25,6 +25,11 @@ export interface Patient {
   adl: AdlLevel;
 }
 
+/** Form state before every field has been filled in. */
+export type PatientDraft = {
+  [K in keyof Patient]: Patient[K] | "";
+};
+
 export type Phase = "now" | "during_stay" | "after_discharge";
 
 export type ConditionOp =

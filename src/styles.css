@@ -63,26 +63,12 @@ body {
   flex-wrap: wrap;
 }
 
-.persona-button,
 .lang-toggle,
 .tab,
 .primary {
   font: inherit;
   border-radius: 6px;
   cursor: pointer;
-}
-
-.persona-button {
-  border: 1px solid var(--accent);
-  background: var(--panel);
-  color: var(--accent);
-  padding: 6px 12px;
-  font-size: 0.85rem;
-}
-
-.persona-button.active {
-  background: var(--accent);
-  color: #fff;
 }
 
 .lang-toggle {
@@ -113,15 +99,6 @@ body {
   font-size: 1.05rem;
 }
 
-.persona-profile {
-  margin: 0 0 12px;
-  padding: 10px 12px;
-  background: var(--accent-soft);
-  border-radius: 8px;
-  font-size: 0.82rem;
-  color: var(--ink);
-}
-
 .form label {
   display: block;
   margin-bottom: 12px;
@@ -142,6 +119,21 @@ body {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #fff;
+  color: var(--ink);
+}
+
+.form select.is-placeholder {
+  color: var(--muted);
+}
+
+.form select option {
+  color: var(--ink);
+}
+
+.form-error {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: var(--now);
 }
 
 .primary {
@@ -157,12 +149,6 @@ body {
 
 .primary:hover {
   opacity: 0.9;
-}
-
-.hint {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin: 10px 0 0;
 }
 
 .placeholder {
